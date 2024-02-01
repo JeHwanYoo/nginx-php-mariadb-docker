@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  mariadb:
+    image: mariadb:latest
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=mariadb
+    ports:
+      - '3306:3306'
+    volumes:
+      - var_lib_mysql:/var/lib/mysql
+
+  php:
+    build:
+      context: images/php
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - mariadb
+    volumes:
+      - ./var_www_html/:/var/www/html
+
+  nginx:
+    build:
+      context: images/nginx
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - php
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./var_www_html/:/var/www/html
+
+volumes:
+  var_lib_mysql:
